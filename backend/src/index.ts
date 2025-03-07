@@ -1,35 +1,23 @@
-import express from "express";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import { ApolloServer, gql } from "apollo-server-express";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
 
-// Construct a schema, using GraphQL schema language
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
+import { resolvers } from "./graphql/resolvers";
+import { typeDefs } from "./graphql/typeDefs";
 
-// Provide resolver functions for your schema fields
-const resolvers = {
-  Query: {
-    hello: () => "Hello world!",
-  },
-};
+interface MyContext {
+  token?: String;
+}
 
 async function startServer() {
-  const server = new ApolloServer({ typeDefs, resolvers });
-  await server.start();
+  const server = new ApolloServer<MyContext>({ typeDefs, resolvers });
 
-  const app = express();
-  app.use(cookieParser());
-  app.use(cors({ origin: "http://localhost:*" }));
+  const { url } = await startStandaloneServer(server, {
+    context: async ({ req }) => ({ token: req.headers.token }),
 
-  server.applyMiddleware({ app: app as any });
+    listen: { port: 4000 },
+  });
 
-  app.listen({ port: 4000 }, () =>
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-  );
+  console.log(`🚀  Server ready at ${url}`);
 }
 
 startServer();

@@ -3,13 +3,29 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  // provider = "postgresql"
+  provider = "sqlite" // change as needed (mysql, sqlite, etc.)
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  name  String
-  email String  @unique
+model MaintenanceRequest {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  status      RequestStatus  @default(OPEN)
+  urgency     RequestUrgency @default(NONE)
+  createdAt   DateTime       @default(now())
+  resolvedAt  DateTime?
+  updatedAt   DateTime       @updatedAt
+}
+
+enum RequestStatus {
+  OPEN
+  RESOLVED
+}
+
+enum RequestUrgency {
+  NONE
+  LESS
+  URGENT
+  EMERGENCY
 }
