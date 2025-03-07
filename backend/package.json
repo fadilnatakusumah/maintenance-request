@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon -L --exec ts-node src/index.ts",
     "compile": "tsc",
-    "start": "yarn compile && node ./dist/index.js"
+    "start": "yarn compile && node ./dist/index.js",
+    "generate": "graphql-codegen"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma"
@@ -14,11 +15,16 @@
   "dependencies": {
     "@apollo/server": "^4.11.3",
     "@prisma/client": "^6.4.1",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "graphql": "^16.10.0",
     "prisma": "^6.4.1"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/client-preset": "^4.7.0",
+    "@graphql-codegen/typescript": "^4.1.5",
+    "@graphql-codegen/typescript-operations": "^4.5.1",
     "@types/node": "^22.13.9",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
