@@ -1,5 +1,8 @@
 import { prisma } from "../prisma";
-import { CreateMaintenanceRequestInput } from "../__generated__/graphql";
+import {
+  CreateMaintenanceRequestInput,
+  UpdateMaintenanceRequestInput,
+} from "../__generated__/graphql";
 
 export const resolvers = {
   Query: {
@@ -18,6 +21,21 @@ export const resolvers = {
           title: input.title,
           status: input.status,
           description: input.description,
+          urgency: input.urgency,
+        },
+      });
+    },
+
+    updateMaintenanceRequest: async (
+      _: unknown,
+      { input }: { input: UpdateMaintenanceRequestInput }
+    ) => {
+      return prisma.maintenanceRequest.update({
+        where: { id: input.id },
+        data: {
+          title: input.title ?? undefined,
+          status: input.status,
+          description: input.description ?? undefined,
           urgency: input.urgency,
         },
       });
