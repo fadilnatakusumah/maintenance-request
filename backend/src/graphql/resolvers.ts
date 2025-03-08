@@ -2,12 +2,14 @@ import {
   CreateMaintenanceRequestInput,
   UpdateMaintenanceRequestInput,
 } from "../__generated__/graphql";
+import { prisma } from "../prisma";
 import { MyContext } from "./types";
 
 export const resolvers = {
   Query: {
     maintenanceRequests: async (_: unknown, context: MyContext) => {
-      return context.prisma.maintenanceRequest.findMany();
+      console.log("🚀 ~ maintenanceRequests: ~ context:", context);
+      return prisma.maintenanceRequest.findMany();
     },
   },
 
@@ -17,7 +19,7 @@ export const resolvers = {
       { input }: { input: CreateMaintenanceRequestInput },
       context: MyContext
     ) => {
-      return context.prisma.maintenanceRequest.create({
+      return prisma.maintenanceRequest.create({
         data: {
           title: input.title,
           status: input.status,
@@ -32,7 +34,7 @@ export const resolvers = {
       { input }: { input: UpdateMaintenanceRequestInput },
       context: MyContext
     ) => {
-      return context.prisma.maintenanceRequest.update({
+      return prisma.maintenanceRequest.update({
         where: { id: input.id },
         data: {
           title: input.title ?? undefined,
@@ -49,13 +51,13 @@ export const resolvers = {
       context: MyContext
     ) => {
       // Ensure the request isn’t already resolved
-      const request = await context.prisma.maintenanceRequest.findUnique({
+      const request = await prisma.maintenanceRequest.findUnique({
         where: { id },
       });
       if (request!.status === "RESOLVED") {
         throw new Error("Request already resolved.");
       }
-      const resolvedRequest = await context.prisma.maintenanceRequest.update({
+      const resolvedRequest = await prisma.maintenanceRequest.update({
         where: { id },
         data: {
           status: "RESOLVED",

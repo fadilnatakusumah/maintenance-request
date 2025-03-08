@@ -1,0 +1,9 @@
+query GetMaintenanceRequests {
+  maintenanceRequests {
+    id
+    description
+    createdAt
+    resolutionTime
+    status
+  }
+}

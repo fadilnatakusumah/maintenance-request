@@ -1,0 +1,11 @@
+export const URGENT_TYPE = {
+  URGENT: "URGENT",
+  NON_URGENT: "NON_URGENT",
+  EMERGENCY: "EMERGENCY",
+  LESS_URGENT: "LESS_URGENT",
+};
+
+export const REQUEST_STATUS = {
+  OPEN: "OPEN",
+  RESOLVED: "RESOLVED",
+};

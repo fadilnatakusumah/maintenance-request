@@ -1,8 +1,25 @@
+"use client";
+
 import { formatDate } from "date-fns";
+import { Plus } from "lucide-react";
+import Link from "next/link";
 import Emoji from "react-emojis";
-import { MdAdd } from "react-icons/md";
+
+import Label from "@/components/Label";
+import Skeleton from "@/components/Skeleton";
+
+import { URGENT_TYPE } from "@/consts/maintenance";
+import { useGetMaintenanceRequestsQuery } from "@/generated/graphql";
+
+export const URGENT_EMOJI = {
+  [URGENT_TYPE.URGENT]: <Emoji emoji="high-voltage" />,
+  [URGENT_TYPE.NON_URGENT]: <Emoji emoji="slightly-smiling-face" />,
+  [URGENT_TYPE.EMERGENCY]: <Emoji emoji="fire" />,
+  [URGENT_TYPE.LESS_URGENT]: <Emoji emoji="hammer" />,
+};
 
 export default function Home() {
+  const { data, loading, error } = useGetMaintenanceRequestsQuery();
   const metrics = [
     {
       value: 1,
@@ -43,36 +60,42 @@ export default function Home() {
             style={{ scrollbarWidth: "thin" }}
             className="max-h-[65vh] overflow-y-auto flex flex-col gap-5 w-full pb-4"
           >
-            {[...Array(5)].map((_, idx) => (
-              <div
-                className="bg-white flex justify-between items-center p-4 rounded-xl shadow-md"
-                key={idx}
-              >
-                <div className="text-sm">
-                  <div className="font-medium">Front Door Lock Broken</div>
-                  <div className="mt-2.5">
-                    <Emoji emoji="woman-dancing" />
-                    <span className="text-emerald-green font-light ml-1">
-                      Non Urgent
-                    </span>
+            {loading ? (
+              <Skeleton className="rounded-lg h-20" />
+            ) : error ? (
+              <div className="text-red-400">{error.message}</div>
+            ) : (
+              data?.maintenanceRequests.map((_, idx) => (
+                <div
+                  className="bg-white flex justify-between items-center p-4 rounded-xl shadow-md"
+                  key={idx}
+                >
+                  <div className="text-sm">
+                    <div className="font-medium">Front Door Lock Broken</div>
+                    <div className="mt-2.5">
+                      <Emoji emoji="woman-dancing" />
+                      <span className="text-emerald-green font-light ml-1">
+                        Non Urgent
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-steel-blue">
+                      {formatDate(new Date(), "dd MMM yyyy")}
+                    </div>
+                    <Label color="green">Mark as Resolve</Label>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-steel-blue">
-                    {formatDate(new Date(), "dd MMM yyyy")}
-                  </div>
-                  <div className="px-2 py-0.5 text-xs text-white bg-teal-oasis rounded-full mt-2.5">
-                    Mark as Resolve
-                  </div>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
 
           <div className="sticky bottom-0 flex justify-end">
-            <div className="flex items-center justify-center cursor-pointer rounded-full shadow-sm bg-teal-oasis h-12 w-12">
-              <MdAdd color="white" size="28px"/>
-            </div>
+            <Link href={"/create"}>
+              <div className="flex items-center justify-center cursor-pointer rounded-full shadow-sm bg-teal-oasis h-12 w-12">
+                <Plus color="white" />
+              </div>
+            </Link>
           </div>
         </div>
       </main>

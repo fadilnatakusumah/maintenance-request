@@ -13,7 +13,6 @@ async function startServer() {
   const { url } = await startStandaloneServer(server, {
     context: async ({ req }): Promise<MyContext> => ({
       token: req.headers.token?.toString() || "",
-      prisma,
     }),
 
     listen: { port: 4000 },
