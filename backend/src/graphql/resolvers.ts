@@ -8,7 +8,6 @@ import { MyContext } from "./types";
 export const resolvers = {
   Query: {
     maintenanceRequests: async (_: unknown, context: MyContext) => {
-      console.log("🚀 ~ maintenanceRequests: ~ context:", context);
       return prisma.maintenanceRequest.findMany({
         orderBy: {
           createdAt: "desc",
@@ -36,7 +35,6 @@ export const resolvers = {
       _: unknown,
       { input }: { input: UpdateMaintenanceRequestInput }
     ) => {
-      console.log("🚀 ~ input:", input);
       return await prisma.maintenanceRequest.update({
         where: { id: input.id },
         data: {

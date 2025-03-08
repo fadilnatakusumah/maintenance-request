@@ -4,6 +4,8 @@ import clsx from "clsx";
 import { formatDate, fromUnixTime } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import CountUp from "react-countup";
+import { toast } from "react-toastify";
 
 import Label from "@/components/Label";
 import Skeleton from "@/components/Skeleton";
@@ -11,17 +13,21 @@ import Skeleton from "@/components/Skeleton";
 import {
   RequestStatus,
   useGetMaintenanceRequestsQuery,
+  useResolveMaintenanceRequestMutation,
 } from "@/__generated__/graphql";
 import { URGENT_TYPE_TEXT, URGENT_TYPE_TEXT_COLOR } from "@/consts/maintenance";
-import { URGENT_EMOJI } from "./(form)/consts";
 import { useStore } from "@/store/Provider";
-import CountUp from "react-countup";
+import { URGENT_EMOJI } from "./(form)/consts";
 
 export default function Home() {
   const { data, loading, error } = useGetMaintenanceRequestsQuery({
     fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
   });
   const { store } = useStore();
+  const [resolveMaintenanceRequest] = useResolveMaintenanceRequestMutation({
+    awaitRefetchQueries: true,
+    refetchQueries: ["maintenanceRequests"],
+  });
 
   const metrics = [
     {
@@ -37,6 +43,14 @@ export default function Home() {
       title: "Average time (days) to resolve",
     },
   ];
+
+  async function resolveRequestHandler(id: string) {
+    if (window.confirm("Are you sure you want to resolve this request?")) {
+      await resolveMaintenanceRequest({ variables: { id } });
+      toast.success("Maintenance request resolved successfully");
+    }
+  }
+
   return (
     <div className="min-h-screen flex">
       <main className="flex-1 flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -101,6 +115,16 @@ export default function Home() {
                         )}
                       </div>
                       <Label
+                        className="hover:shadow-lg transition-all"
+                        onClick={(evt) => {
+                          if (
+                            maintenanceRequest.status === RequestStatus.Resolved
+                          )
+                            return;
+                          evt.preventDefault();
+                          evt.stopPropagation();
+                          resolveRequestHandler(maintenanceRequest.id);
+                        }}
                         color={
                           maintenanceRequest.status === RequestStatus.Open
                             ? "green"

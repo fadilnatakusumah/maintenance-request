@@ -1,0 +1,8 @@
+mutation ResolveMaintenanceRequest($id: ID!) {
+  resolveMaintenanceRequest(id: $id) {
+    description
+    id
+    title
+    status
+  }
+}

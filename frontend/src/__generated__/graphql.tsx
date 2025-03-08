@@ -108,6 +108,13 @@ export type GetMaintenanceRequestsQueryVariables = Exact<{ [key: string]: never;
 
 export type GetMaintenanceRequestsQuery = { __typename?: 'Query', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, createdAt: string, resolutionTime?: number | null, status: RequestStatus, urgency: RequestUrgency }> };
 
+export type ResolveMaintenanceRequestMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ResolveMaintenanceRequestMutation = { __typename?: 'Mutation', resolveMaintenanceRequest: { __typename?: 'MaintenanceRequest', description?: string | null, id: string, title: string, status: RequestStatus } };
+
 export type UpdateMaintenanceRequestMutationVariables = Exact<{
   input: UpdateMaintenanceRequestInput;
 }>;
@@ -197,6 +204,42 @@ export type GetMaintenanceRequestsQueryHookResult = ReturnType<typeof useGetMain
 export type GetMaintenanceRequestsLazyQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsLazyQuery>;
 export type GetMaintenanceRequestsSuspenseQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsSuspenseQuery>;
 export type GetMaintenanceRequestsQueryResult = Apollo.QueryResult<GetMaintenanceRequestsQuery, GetMaintenanceRequestsQueryVariables>;
+export const ResolveMaintenanceRequestDocument = gql`
+    mutation ResolveMaintenanceRequest($id: ID!) {
+  resolveMaintenanceRequest(id: $id) {
+    description
+    id
+    title
+    status
+  }
+}
+    `;
+export type ResolveMaintenanceRequestMutationFn = Apollo.MutationFunction<ResolveMaintenanceRequestMutation, ResolveMaintenanceRequestMutationVariables>;
+
+/**
+ * __useResolveMaintenanceRequestMutation__
+ *
+ * To run a mutation, you first call `useResolveMaintenanceRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useResolveMaintenanceRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [resolveMaintenanceRequestMutation, { data, loading, error }] = useResolveMaintenanceRequestMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useResolveMaintenanceRequestMutation(baseOptions?: Apollo.MutationHookOptions<ResolveMaintenanceRequestMutation, ResolveMaintenanceRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<ResolveMaintenanceRequestMutation, ResolveMaintenanceRequestMutationVariables>(ResolveMaintenanceRequestDocument, options);
+      }
+export type ResolveMaintenanceRequestMutationHookResult = ReturnType<typeof useResolveMaintenanceRequestMutation>;
+export type ResolveMaintenanceRequestMutationResult = Apollo.MutationResult<ResolveMaintenanceRequestMutation>;
+export type ResolveMaintenanceRequestMutationOptions = Apollo.BaseMutationOptions<ResolveMaintenanceRequestMutation, ResolveMaintenanceRequestMutationVariables>;
 export const UpdateMaintenanceRequestDocument = gql`
     mutation UpdateMaintenanceRequest($input: UpdateMaintenanceRequestInput!) {
   updateMaintenanceRequest(input: $input) {
