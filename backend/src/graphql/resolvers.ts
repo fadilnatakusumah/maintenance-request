@@ -1,9 +1,18 @@
-import { RequestStatus, RequestUrgency } from "@prisma/client";
+import {
+  MaintenanceRequest,
+  RequestStatus,
+  RequestUrgency,
+} from "@prisma/client";
+import { PubSub } from "graphql-subscriptions";
+
 import {
   CreateMaintenanceRequestInput,
   UpdateMaintenanceRequestInput,
 } from "../__generated__/graphql";
 import { prisma } from "../prisma";
+
+export const pubsub = new PubSub();
+const MAINTENANCE_REQUEST_UPDATED = "MAINTENANCE_REQUEST_UPDATED";
 
 export const resolvers = {
   Query: {
@@ -55,13 +64,23 @@ export const resolvers = {
       }
     },
   },
-
+  MaintenanceRequest: {
+    // Compute resolution time as a field
+    resolutionTime: (parent: MaintenanceRequest) => {
+      if (parent.status !== RequestStatus.RESOLVED || !parent.resolvedAt)
+        return null;
+      const timeTaken =
+        new Date(parent.resolvedAt).getTime() -
+        new Date(parent.createdAt).getTime();
+      return timeTaken / 1000; // seconds
+    },
+  },
   Mutation: {
     createMaintenanceRequest: async (
       _: unknown,
       { input }: { input: CreateMaintenanceRequestInput }
     ) => {
-      return prisma.maintenanceRequest.create({
+      const newRequest = await prisma.maintenanceRequest.create({
         data: {
           title: input.title,
           status: input.status,
@@ -69,13 +88,17 @@ export const resolvers = {
           urgency: input.urgency,
         },
       });
+      pubsub.publish(MAINTENANCE_REQUEST_UPDATED, {
+        maintenanceRequestUpdated: newRequest,
+      });
+      return newRequest;
     },
 
     updateMaintenanceRequest: async (
       _: unknown,
       { input }: { input: UpdateMaintenanceRequestInput }
     ) => {
-      return await prisma.maintenanceRequest.update({
+      const updatedRequest = await prisma.maintenanceRequest.update({
         where: { id: input.id },
         data: {
           title: input.title ?? undefined,
@@ -84,6 +107,10 @@ export const resolvers = {
           urgency: input.urgency,
         },
       });
+      pubsub.publish(MAINTENANCE_REQUEST_UPDATED, {
+        maintenanceRequestUpdated: updatedRequest,
+      });
+      return updatedRequest;
     },
 
     resolveMaintenanceRequest: async (_: unknown, { id }: { id: string }) => {
@@ -91,20 +118,27 @@ export const resolvers = {
       const request = await prisma.maintenanceRequest.findUnique({
         where: { id },
       });
-      if (request!.status === "RESOLVED") {
+      if (request!.status === RequestStatus.RESOLVED) {
         throw new Error("Request already resolved.");
       }
       const resolvedRequest = await prisma.maintenanceRequest.update({
         where: { id },
         data: {
-          status: "RESOLVED",
+          status: RequestStatus.RESOLVED,
           resolvedAt: new Date(),
           updatedAt: new Date(),
         },
       });
-
+      pubsub.publish(MAINTENANCE_REQUEST_UPDATED, {
+        maintenanceRequestUpdated: resolvedRequest,
+      });
       return resolvedRequest;
     },
   },
-  Subscription: {},
+  Subscription: {
+    maintenanceRequestUpdated: {
+      subscribe: () =>
+        pubsub.asyncIterableIterator([MAINTENANCE_REQUEST_UPDATED]),
+    },
+  },
 };
