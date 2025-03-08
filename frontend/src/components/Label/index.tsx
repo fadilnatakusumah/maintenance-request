@@ -10,7 +10,7 @@ function Label({
   return (
     <div
       className={clsx(
-        "px-2 py-0.5 text-xs text-white rounded-full mt-2.5",
+        "px-2.5 py-0.5 text-xs text-white rounded-full mt-2.5 flex justify-center items-center",
         color === "green" && "bg-teal-oasis",
         color === "gray" && "bg-steel-blue",
         className

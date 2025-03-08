@@ -4,27 +4,25 @@ import clsx from "clsx";
 import { formatDate, fromUnixTime } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import Emoji from "react-emojis";
 
 import Label from "@/components/Label";
 import Skeleton from "@/components/Skeleton";
 
 import {
   RequestStatus,
-  RequestUrgency,
   useGetMaintenanceRequestsQuery,
 } from "@/__generated__/graphql";
 import { URGENT_TYPE_TEXT, URGENT_TYPE_TEXT_COLOR } from "@/consts/maintenance";
-
-export const URGENT_EMOJI = {
-  [RequestUrgency.Urgent]: <Emoji emoji="high-voltage" />,
-  [RequestUrgency.None]: <Emoji emoji="slightly-smiling-face" />,
-  [RequestUrgency.Emergency]: <Emoji emoji="fire" />,
-  [RequestUrgency.Less]: <Emoji emoji="hammer" />,
-};
+import { URGENT_EMOJI } from "./(form)/consts";
+import { useStore } from "@/store/Provider";
+import CountUp from "react-countup";
 
 export default function Home() {
-  const { data, loading, error } = useGetMaintenanceRequestsQuery();
+  const { data, loading, error } = useGetMaintenanceRequestsQuery({
+    fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
+  });
+  const { store } = useStore();
+
   const metrics = [
     {
       value: 1,
@@ -54,7 +52,7 @@ export default function Home() {
                 className="w-[100px] h-[100px] rounded-[10px] text-center shadow-md  py-6 px-1.5 bg-white"
               >
                 <div className="text-4xl text-teal-oasis font-medium">
-                  {value}
+                  <CountUp end={value} duration={3} />
                 </div>
                 <div className="text-[9px]">{title}</div>
               </div>
@@ -71,7 +69,13 @@ export default function Home() {
               <div className="text-red-400">{error.message}</div>
             ) : (
               data?.maintenanceRequests.map((maintenanceRequest, idx) => (
-                <Link key={idx} href={`/edit/${maintenanceRequest.id}`}>
+                <Link
+                  key={idx}
+                  href={`/edit/${maintenanceRequest.id}`}
+                  onClick={() => {
+                    store.updateSelectedMaintenanceRequest(maintenanceRequest);
+                  }}
+                >
                   <div className="bg-white flex justify-between items-center p-4 rounded-xl shadow-md">
                     <div className="text-sm">
                       <div className="font-medium">

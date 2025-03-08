@@ -20,8 +20,7 @@ export const resolvers = {
   Mutation: {
     createMaintenanceRequest: async (
       _: unknown,
-      { input }: { input: CreateMaintenanceRequestInput },
-      context: MyContext
+      { input }: { input: CreateMaintenanceRequestInput }
     ) => {
       return prisma.maintenanceRequest.create({
         data: {
@@ -35,10 +34,10 @@ export const resolvers = {
 
     updateMaintenanceRequest: async (
       _: unknown,
-      { input }: { input: UpdateMaintenanceRequestInput },
-      context: MyContext
+      { input }: { input: UpdateMaintenanceRequestInput }
     ) => {
-      return prisma.maintenanceRequest.update({
+      console.log("🚀 ~ input:", input);
+      return await prisma.maintenanceRequest.update({
         where: { id: input.id },
         data: {
           title: input.title ?? undefined,
@@ -49,11 +48,7 @@ export const resolvers = {
       });
     },
 
-    resolveMaintenanceRequest: async (
-      _: unknown,
-      { id }: { id: string },
-      context: MyContext
-    ) => {
+    resolveMaintenanceRequest: async (_: unknown, { id }: { id: string }) => {
       // Ensure the request isn’t already resolved
       const request = await prisma.maintenanceRequest.findUnique({
         where: { id },

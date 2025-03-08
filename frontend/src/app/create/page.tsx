@@ -3,7 +3,9 @@
 import Button from "@/components/Button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import Emoji from "react-emojis";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 import DropdownField from "@/components/DropdownField";
 import Field from "@/components/Field";
@@ -16,21 +18,7 @@ import {
   RequestUrgency,
   useCreateMaintenanceRequestMutation,
 } from "@/__generated__/graphql";
-import { REQUEST_STATUS, URGENT_TYPE_TEXT } from "@/consts/maintenance";
-import { useForm } from "react-hook-form";
-// import {
-//   MaintenanceRequest,
-//   useCreateMaintenanceRequestMutation,
-// } from "@/__generated___/graphql";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-
-export const URGENT_EMOJI = {
-  [RequestUrgency.Urgent]: <Emoji emoji="high-voltage" />,
-  [RequestUrgency.None]: <Emoji emoji="slightly-smiling-face" />,
-  [RequestUrgency.Emergency]: <Emoji emoji="fire" />,
-  [RequestUrgency.Less]: <Emoji emoji="hammer" />,
-};
+import { REQUEST_STATUS } from "@/consts/maintenance";
 
 export default function CreatePage() {
   const [createMaintenanceRequest, { loading }] =
@@ -48,9 +36,7 @@ export default function CreatePage() {
       status: RequestStatus.Open,
     },
   });
-  console.log("🚀 ~ CreatePage ~ errors:", errors);
 
-  // console.log("🚀 ~ CreatePage ~ errors:", errors);
   async function createMaintenanceRequestHandler(data: MaintenanceRequest) {
     try {
       await createMaintenanceRequest({
@@ -60,10 +46,10 @@ export default function CreatePage() {
           },
         },
       });
-      toast.success("Maintenance sequest successfully created");
+      toast.success("Maintenance request successfully created");
       push("/");
-    } catch (error: { message?: string }) {
-      toast.error(error?.message);
+    } catch (error: unknown) {
+      toast.error(error as string);
       console.error(error);
     }
   }

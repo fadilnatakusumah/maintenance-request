@@ -1,0 +1,9 @@
+mutation UpdateMaintenanceRequest($input: UpdateMaintenanceRequestInput!) {
+  updateMaintenanceRequest(input: $input) {
+    id
+    description
+    createdAt
+    resolutionTime
+    status
+  }
+}
