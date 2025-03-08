@@ -1,18 +1,58 @@
+import { RequestStatus, RequestUrgency } from "@prisma/client";
 import {
   CreateMaintenanceRequestInput,
   UpdateMaintenanceRequestInput,
 } from "../__generated__/graphql";
 import { prisma } from "../prisma";
-import { MyContext } from "./types";
 
 export const resolvers = {
   Query: {
-    maintenanceRequests: async (_: unknown, context: MyContext) => {
+    maintenanceRequests: async (_: unknown) => {
       return prisma.maintenanceRequest.findMany({
         orderBy: {
           createdAt: "desc",
         },
       });
+    },
+    metrics: async () => {
+      try {
+        const requests = await prisma.maintenanceRequest.findMany();
+        // Fallback to an empty array if something is off
+        const reqs = requests || [];
+        const openRequests = reqs.filter(
+          (r) => r.status === RequestStatus.OPEN
+        ).length;
+        const urgentRequests = reqs.filter(
+          (r) =>
+            r.urgency === RequestUrgency.URGENT ||
+            r.urgency === RequestUrgency.EMERGENCY
+        ).length;
+
+        // Compute average resolution time (in seconds) for resolved requests
+        const resolved = reqs.filter(
+          (r) => r.status === RequestStatus.RESOLVED && r.resolvedAt
+        );
+        let averageResolutionTime = null;
+        if (resolved.length > 0) {
+          const totalTime = resolved.reduce((acc, r) => {
+            const timeTaken =
+              new Date(r.resolvedAt as unknown as string).getTime() -
+              new Date(r.createdAt).getTime();
+            return acc + timeTaken;
+          }, 0);
+          averageResolutionTime = totalTime / resolved.length / 1000; // seconds
+        }
+
+        return { openRequests, averageResolutionTime, urgentRequests };
+      } catch (error) {
+        console.error("Error fetching metrics:", error);
+        // Return a default Metrics object so that the field is never null
+        return {
+          openRequests: 0,
+          averageResolutionTime: null,
+          urgentRequests: 0,
+        };
+      }
     },
   },
 

@@ -13,6 +13,7 @@ import Skeleton from "@/components/Skeleton";
 import {
   RequestStatus,
   useGetMaintenanceRequestsQuery,
+  useGetMetricsQuery,
   useResolveMaintenanceRequestMutation,
 } from "@/__generated__/graphql";
 import { URGENT_TYPE_TEXT, URGENT_TYPE_TEXT_COLOR } from "@/consts/maintenance";
@@ -23,26 +24,31 @@ export default function Home() {
   const { data, loading, error } = useGetMaintenanceRequestsQuery({
     fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
   });
+  const { data: metricsData } = useGetMetricsQuery({
+    fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
+  });
   const { store } = useStore();
   const [resolveMaintenanceRequest] = useResolveMaintenanceRequestMutation({
     awaitRefetchQueries: true,
-    refetchQueries: ["maintenanceRequests"],
+    refetchQueries: ["maintenanceRequests", "metrics"],
   });
 
   const metrics = [
     {
-      value: 1,
+      value: metricsData?.metrics.openRequests,
       title: "Open Requests",
     },
     {
-      value: 3,
+      value: metricsData?.metrics.urgentRequests,
       title: "Urgent Requests",
     },
     {
-      value: 3,
+      value: metricsData?.metrics.averageResolutionTime?.toFixed(2).toString(),
       title: "Average time (days) to resolve",
     },
   ];
+
+  const dayInSeconds = 86400;
 
   async function resolveRequestHandler(id: string) {
     if (window.confirm("Are you sure you want to resolve this request?")) {
@@ -66,7 +72,15 @@ export default function Home() {
                 className="w-[100px] h-[100px] rounded-[10px] text-center shadow-md  py-6 px-1.5 bg-white"
               >
                 <div className="text-4xl text-teal-oasis font-medium">
-                  <CountUp end={value} duration={3} />
+                  <CountUp
+                    start={0}
+                    end={idx === 2 ? +value! / dayInSeconds : +value!}
+                    duration={3}
+                    {...(idx === 2 && {
+                      separator: ",",
+                      decimals: 2, // If you expect decimal places
+                    })}
+                  />
                 </div>
                 <div className="text-[9px]">{title}</div>
               </div>

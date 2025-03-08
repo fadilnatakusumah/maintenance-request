@@ -1,0 +1,7 @@
+query GetMetrics {
+  metrics {
+    averageResolutionTime
+    openRequests
+    urgentRequests
+  }
+}

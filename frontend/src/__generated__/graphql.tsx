@@ -108,6 +108,11 @@ export type GetMaintenanceRequestsQueryVariables = Exact<{ [key: string]: never;
 
 export type GetMaintenanceRequestsQuery = { __typename?: 'Query', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, createdAt: string, resolutionTime?: number | null, status: RequestStatus, urgency: RequestUrgency }> };
 
+export type GetMetricsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMetricsQuery = { __typename?: 'Query', metrics: { __typename?: 'Metrics', averageResolutionTime?: number | null, openRequests: number, urgentRequests: number } };
+
 export type ResolveMaintenanceRequestMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
@@ -204,6 +209,47 @@ export type GetMaintenanceRequestsQueryHookResult = ReturnType<typeof useGetMain
 export type GetMaintenanceRequestsLazyQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsLazyQuery>;
 export type GetMaintenanceRequestsSuspenseQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsSuspenseQuery>;
 export type GetMaintenanceRequestsQueryResult = Apollo.QueryResult<GetMaintenanceRequestsQuery, GetMaintenanceRequestsQueryVariables>;
+export const GetMetricsDocument = gql`
+    query GetMetrics {
+  metrics {
+    averageResolutionTime
+    openRequests
+    urgentRequests
+  }
+}
+    `;
+
+/**
+ * __useGetMetricsQuery__
+ *
+ * To run a query within a React component, call `useGetMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMetricsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetMetricsQuery, GetMetricsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMetricsQuery, GetMetricsQueryVariables>(GetMetricsDocument, options);
+      }
+export function useGetMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMetricsQuery, GetMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMetricsQuery, GetMetricsQueryVariables>(GetMetricsDocument, options);
+        }
+export function useGetMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMetricsQuery, GetMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMetricsQuery, GetMetricsQueryVariables>(GetMetricsDocument, options);
+        }
+export type GetMetricsQueryHookResult = ReturnType<typeof useGetMetricsQuery>;
+export type GetMetricsLazyQueryHookResult = ReturnType<typeof useGetMetricsLazyQuery>;
+export type GetMetricsSuspenseQueryHookResult = ReturnType<typeof useGetMetricsSuspenseQuery>;
+export type GetMetricsQueryResult = Apollo.QueryResult<GetMetricsQuery, GetMetricsQueryVariables>;
 export const ResolveMaintenanceRequestDocument = gql`
     mutation ResolveMaintenanceRequest($id: ID!) {
   resolveMaintenanceRequest(id: $id) {
