@@ -1,0 +1,8 @@
+mutation CreateMaintenanceRequest($input: CreateMaintenanceRequestInput!) {
+  createMaintenanceRequest(input: $input) {
+    status
+    id
+    createdAt
+    title
+  }
+}

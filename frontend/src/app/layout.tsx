@@ -1,7 +1,8 @@
+import { Providers } from "@/graphql/ApolloProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { ToastContainer } from "react-toastify";
 import "./globals.css";
-import { Providers } from "@/graphql/ApolloProvider";
 
 const inter = Inter({});
 
@@ -18,7 +19,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <ToastContainer  />
+        </Providers>
       </body>
     </html>
   );

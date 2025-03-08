@@ -51,3 +51,7 @@ body {
     background-color: #f1f1f1;
   }
 }
+select,
+select option {
+  font-family: inherit;
+}

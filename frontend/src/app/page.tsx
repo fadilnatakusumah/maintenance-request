@@ -1,6 +1,7 @@
 "use client";
 
-import { formatDate } from "date-fns";
+import clsx from "clsx";
+import { formatDate, fromUnixTime } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import Emoji from "react-emojis";
@@ -8,14 +9,18 @@ import Emoji from "react-emojis";
 import Label from "@/components/Label";
 import Skeleton from "@/components/Skeleton";
 
-import { URGENT_TYPE } from "@/consts/maintenance";
-import { useGetMaintenanceRequestsQuery } from "@/generated/graphql";
+import {
+  RequestStatus,
+  RequestUrgency,
+  useGetMaintenanceRequestsQuery,
+} from "@/__generated__/graphql";
+import { URGENT_TYPE_TEXT, URGENT_TYPE_TEXT_COLOR } from "@/consts/maintenance";
 
 export const URGENT_EMOJI = {
-  [URGENT_TYPE.URGENT]: <Emoji emoji="high-voltage" />,
-  [URGENT_TYPE.NON_URGENT]: <Emoji emoji="slightly-smiling-face" />,
-  [URGENT_TYPE.EMERGENCY]: <Emoji emoji="fire" />,
-  [URGENT_TYPE.LESS_URGENT]: <Emoji emoji="hammer" />,
+  [RequestUrgency.Urgent]: <Emoji emoji="high-voltage" />,
+  [RequestUrgency.None]: <Emoji emoji="slightly-smiling-face" />,
+  [RequestUrgency.Emergency]: <Emoji emoji="fire" />,
+  [RequestUrgency.Less]: <Emoji emoji="hammer" />,
 };
 
 export default function Home() {
@@ -58,34 +63,53 @@ export default function Home() {
 
           <div
             style={{ scrollbarWidth: "thin" }}
-            className="max-h-[65vh] overflow-y-auto flex flex-col gap-5 w-full pb-4"
+            className="max-h-[65vh] overflow-y-auto flex flex-col gap-5 w-full pb-4 px-7"
           >
-            {loading ? (
+            {loading && !data ? (
               <Skeleton className="rounded-lg h-20" />
             ) : error ? (
               <div className="text-red-400">{error.message}</div>
             ) : (
-              data?.maintenanceRequests.map((_, idx) => (
-                <div
-                  className="bg-white flex justify-between items-center p-4 rounded-xl shadow-md"
-                  key={idx}
-                >
-                  <div className="text-sm">
-                    <div className="font-medium">Front Door Lock Broken</div>
-                    <div className="mt-2.5">
-                      <Emoji emoji="woman-dancing" />
-                      <span className="text-emerald-green font-light ml-1">
-                        Non Urgent
-                      </span>
+              data?.maintenanceRequests.map((maintenanceRequest, idx) => (
+                <Link key={idx} href={`/edit/${maintenanceRequest.id}`}>
+                  <div className="bg-white flex justify-between items-center p-4 rounded-xl shadow-md">
+                    <div className="text-sm">
+                      <div className="font-medium">
+                        {maintenanceRequest.title}
+                      </div>
+                      <div className="mt-2.5">
+                        {URGENT_EMOJI[maintenanceRequest.urgency]}
+                        <span
+                          className={clsx(
+                            "font-light ml-1",
+                            URGENT_TYPE_TEXT_COLOR[maintenanceRequest.urgency]
+                          )}
+                        >
+                          {URGENT_TYPE_TEXT[maintenanceRequest.urgency]}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-steel-blue">
+                        {formatDate(
+                          +fromUnixTime(+maintenanceRequest.createdAt) / 1000,
+                          "dd MMM yyyy"
+                        )}
+                      </div>
+                      <Label
+                        color={
+                          maintenanceRequest.status === RequestStatus.Open
+                            ? "green"
+                            : "gray"
+                        }
+                      >
+                        {maintenanceRequest.status === RequestStatus.Open
+                          ? "Mark as Resolve"
+                          : "Resolved"}
+                      </Label>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs text-steel-blue">
-                      {formatDate(new Date(), "dd MMM yyyy")}
-                    </div>
-                    <Label color="green">Mark as Resolve</Label>
-                  </div>
-                </div>
+                </Link>
               ))
             )}
           </div>

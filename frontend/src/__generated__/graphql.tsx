@@ -96,20 +96,65 @@ export type UpdateMaintenanceRequestInput = {
   urgency: RequestUrgency;
 };
 
+export type CreateMaintenanceRequestMutationVariables = Exact<{
+  input: CreateMaintenanceRequestInput;
+}>;
+
+
+export type CreateMaintenanceRequestMutation = { __typename?: 'Mutation', createMaintenanceRequest: { __typename?: 'MaintenanceRequest', status: RequestStatus, id: string, createdAt: string, title: string } };
+
 export type GetMaintenanceRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMaintenanceRequestsQuery = { __typename?: 'Query', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, description?: string | null, createdAt: string, resolutionTime?: number | null, status: RequestStatus }> };
+export type GetMaintenanceRequestsQuery = { __typename?: 'Query', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, createdAt: string, resolutionTime?: number | null, status: RequestStatus, urgency: RequestUrgency }> };
 
 
+export const CreateMaintenanceRequestDocument = gql`
+    mutation CreateMaintenanceRequest($input: CreateMaintenanceRequestInput!) {
+  createMaintenanceRequest(input: $input) {
+    status
+    id
+    createdAt
+    title
+  }
+}
+    `;
+export type CreateMaintenanceRequestMutationFn = Apollo.MutationFunction<CreateMaintenanceRequestMutation, CreateMaintenanceRequestMutationVariables>;
+
+/**
+ * __useCreateMaintenanceRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateMaintenanceRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateMaintenanceRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createMaintenanceRequestMutation, { data, loading, error }] = useCreateMaintenanceRequestMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateMaintenanceRequestMutation(baseOptions?: Apollo.MutationHookOptions<CreateMaintenanceRequestMutation, CreateMaintenanceRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateMaintenanceRequestMutation, CreateMaintenanceRequestMutationVariables>(CreateMaintenanceRequestDocument, options);
+      }
+export type CreateMaintenanceRequestMutationHookResult = ReturnType<typeof useCreateMaintenanceRequestMutation>;
+export type CreateMaintenanceRequestMutationResult = Apollo.MutationResult<CreateMaintenanceRequestMutation>;
+export type CreateMaintenanceRequestMutationOptions = Apollo.BaseMutationOptions<CreateMaintenanceRequestMutation, CreateMaintenanceRequestMutationVariables>;
 export const GetMaintenanceRequestsDocument = gql`
     query GetMaintenanceRequests {
   maintenanceRequests {
     id
+    title
     description
     createdAt
     resolutionTime
     status
+    urgency
   }
 }
     `;

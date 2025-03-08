@@ -3,9 +3,10 @@ import React, { ComponentProps } from "react";
 
 function Field({
   className,
+  textarea: isTextArea,
   ...props
 }: ComponentProps<"input" | "textarea"> & { textarea?: boolean }) {
-  if (props.textarea) {
+  if (isTextArea) {
     return (
       <textarea
         className={clsx(

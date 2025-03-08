@@ -9,11 +9,12 @@ interface DropdownOption {
 function DropdownField({
   options,
   placeholder = "Select a dropdown option",
+  // onChange,
   ...props
 }: ComponentProps<"select"> & {
   options: DropdownOption[];
   value?: string;
-  onChange?: (value: string) => void;
+  // onChange?: (value: string) => void;
   placeholder?: string;
   className?: string;
 }) {
@@ -21,6 +22,7 @@ function DropdownField({
     <div className="relative text-sm">
       <select
         className="w-full bg-white border-none appearance-none p-4 rounded-xl shadow-md"
+        // onChange={(e) => onChange && onChange(e.target.value)}
         {...props}
       >
         <option value="">{placeholder}</option>

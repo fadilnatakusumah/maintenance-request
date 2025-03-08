@@ -9,7 +9,11 @@ export const resolvers = {
   Query: {
     maintenanceRequests: async (_: unknown, context: MyContext) => {
       console.log("🚀 ~ maintenanceRequests: ~ context:", context);
-      return prisma.maintenanceRequest.findMany();
+      return prisma.maintenanceRequest.findMany({
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
     },
   },
 

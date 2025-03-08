@@ -1,9 +1,11 @@
 query GetMaintenanceRequests {
   maintenanceRequests {
     id
+    title
     description
     createdAt
     resolutionTime
     status
+    urgency
   }
 }
