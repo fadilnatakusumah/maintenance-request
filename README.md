@@ -32,3 +32,11 @@ Move to `frontend` folder and run these commands
 ### Access The App
 
 Access the app in http://localhost:3000
+
+
+### Preview App
+![hippo](./preview.gif)
+
+
+### Here's a baby Hippo :)
+![hippo](https://media3.giphy.com/media/aUovxH8Vf9qDu/giphy.gif)
