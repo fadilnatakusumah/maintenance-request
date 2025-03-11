@@ -3,16 +3,13 @@ import {
   RequestStatus,
   RequestUrgency,
 } from "@prisma/client";
-import { PubSub } from "graphql-subscriptions";
 
 import {
   CreateMaintenanceRequestInput,
   UpdateMaintenanceRequestInput,
 } from "../__generated__/graphql";
-import { prisma } from "../prisma";
-
-export const pubsub = new PubSub();
-const MAINTENANCE_REQUEST_UPDATED = "MAINTENANCE_REQUEST_UPDATED";
+import { fetchDataUpdate } from "../helpers/data";
+import { DATA_UPDATED, prisma, pubsub } from "../prisma";
 
 export const resolvers = {
   Query: {
@@ -88,9 +85,9 @@ export const resolvers = {
           urgency: input.urgency,
         },
       });
-      pubsub.publish(MAINTENANCE_REQUEST_UPDATED, {
-        maintenanceRequestUpdated: newRequest,
-      });
+
+      const dataUpdate = await fetchDataUpdate();
+      pubsub.publish(DATA_UPDATED, { dataUpdated: dataUpdate });
       return newRequest;
     },
 
@@ -107,9 +104,9 @@ export const resolvers = {
           urgency: input.urgency,
         },
       });
-      pubsub.publish(MAINTENANCE_REQUEST_UPDATED, {
-        maintenanceRequestUpdated: updatedRequest,
-      });
+
+      const dataUpdate = await fetchDataUpdate();
+      pubsub.publish(DATA_UPDATED, { dataUpdated: dataUpdate });
       return updatedRequest;
     },
 
@@ -129,16 +126,15 @@ export const resolvers = {
           updatedAt: new Date(),
         },
       });
-      pubsub.publish(MAINTENANCE_REQUEST_UPDATED, {
-        maintenanceRequestUpdated: resolvedRequest,
-      });
+
+      const dataUpdate = await fetchDataUpdate();
+      pubsub.publish(DATA_UPDATED, { dataUpdated: dataUpdate });
       return resolvedRequest;
     },
   },
   Subscription: {
-    maintenanceRequestUpdated: {
-      subscribe: () =>
-        pubsub.asyncIterableIterator([MAINTENANCE_REQUEST_UPDATED]),
+    dataUpdated: {
+      subscribe: () => pubsub.asyncIterableIterator([DATA_UPDATED]),
     },
   },
 };

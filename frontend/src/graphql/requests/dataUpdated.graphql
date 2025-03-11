@@ -1,0 +1,19 @@
+subscription OnDataUpdated {
+  dataUpdated {
+    maintenanceRequests {
+      id
+      title
+      description
+      status
+      urgency
+      createdAt
+      resolvedAt
+      resolutionTime
+    }
+    metrics {
+      averageResolutionTime
+      openRequests
+      urgentRequests
+    }
+  }
+}

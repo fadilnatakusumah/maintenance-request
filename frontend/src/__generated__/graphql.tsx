@@ -24,6 +24,12 @@ export type CreateMaintenanceRequestInput = {
   urgency: RequestUrgency;
 };
 
+export type DataUpdate = {
+  __typename?: 'DataUpdate';
+  maintenanceRequests: Array<MaintenanceRequest>;
+  metrics: Metrics;
+};
+
 export type MaintenanceRequest = {
   __typename?: 'MaintenanceRequest';
   createdAt: Scalars['String']['output'];
@@ -85,7 +91,7 @@ export enum RequestUrgency {
 
 export type Subscription = {
   __typename?: 'Subscription';
-  maintenanceRequestUpdated: MaintenanceRequest;
+  dataUpdated: DataUpdate;
 };
 
 export type UpdateMaintenanceRequestInput = {
@@ -102,6 +108,11 @@ export type CreateMaintenanceRequestMutationVariables = Exact<{
 
 
 export type CreateMaintenanceRequestMutation = { __typename?: 'Mutation', createMaintenanceRequest: { __typename?: 'MaintenanceRequest', status: RequestStatus, id: string, createdAt: string, title: string } };
+
+export type OnDataUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OnDataUpdatedSubscription = { __typename?: 'Subscription', dataUpdated: { __typename?: 'DataUpdate', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, status: RequestStatus, urgency: RequestUrgency, createdAt: string, resolvedAt?: string | null, resolutionTime?: number | null }>, metrics: { __typename?: 'Metrics', averageResolutionTime?: number | null, openRequests: number, urgentRequests: number } } };
 
 export type GetMaintenanceRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -164,6 +175,49 @@ export function useCreateMaintenanceRequestMutation(baseOptions?: Apollo.Mutatio
 export type CreateMaintenanceRequestMutationHookResult = ReturnType<typeof useCreateMaintenanceRequestMutation>;
 export type CreateMaintenanceRequestMutationResult = Apollo.MutationResult<CreateMaintenanceRequestMutation>;
 export type CreateMaintenanceRequestMutationOptions = Apollo.BaseMutationOptions<CreateMaintenanceRequestMutation, CreateMaintenanceRequestMutationVariables>;
+export const OnDataUpdatedDocument = gql`
+    subscription OnDataUpdated {
+  dataUpdated {
+    maintenanceRequests {
+      id
+      title
+      description
+      status
+      urgency
+      createdAt
+      resolvedAt
+      resolutionTime
+    }
+    metrics {
+      averageResolutionTime
+      openRequests
+      urgentRequests
+    }
+  }
+}
+    `;
+
+/**
+ * __useOnDataUpdatedSubscription__
+ *
+ * To run a query within a React component, call `useOnDataUpdatedSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useOnDataUpdatedSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOnDataUpdatedSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOnDataUpdatedSubscription(baseOptions?: Apollo.SubscriptionHookOptions<OnDataUpdatedSubscription, OnDataUpdatedSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnDataUpdatedSubscription, OnDataUpdatedSubscriptionVariables>(OnDataUpdatedDocument, options);
+      }
+export type OnDataUpdatedSubscriptionHookResult = ReturnType<typeof useOnDataUpdatedSubscription>;
+export type OnDataUpdatedSubscriptionResult = Apollo.SubscriptionResult<OnDataUpdatedSubscription>;
 export const GetMaintenanceRequestsDocument = gql`
     query GetMaintenanceRequests {
   maintenanceRequests {

@@ -14,11 +14,13 @@ import {
   RequestStatus,
   useGetMaintenanceRequestsQuery,
   useGetMetricsQuery,
+  useOnDataUpdatedSubscription,
   useResolveMaintenanceRequestMutation,
 } from "@/__generated__/graphql";
 import { URGENT_TYPE_TEXT, URGENT_TYPE_TEXT_COLOR } from "@/consts/maintenance";
 import { useStore } from "@/store/Provider";
 import { URGENT_EMOJI } from "./(form)/consts";
+import { useMemo } from "react";
 
 export default function Home() {
   const { data, loading, error } = useGetMaintenanceRequestsQuery({
@@ -32,18 +34,36 @@ export default function Home() {
     awaitRefetchQueries: true,
     refetchQueries: ["maintenanceRequests", "metrics"],
   });
+  const { data: dataUpdated } = useOnDataUpdatedSubscription()!;
+  // const {} = dataUpdated.;
+  const maintenanceRequests = dataUpdated?.dataUpdated?.maintenanceRequests;
+  const metricsDataUpdated = dataUpdated?.dataUpdated?.metrics;
+
+  const metricsRealtime = useMemo(() => {
+    if (metricsDataUpdated) {
+      return metricsDataUpdated;
+    }
+    return metricsData?.metrics;
+  }, [metricsData, metricsDataUpdated]);
+
+  const maintenanceRequestsRealtime = useMemo(() => {
+    if (maintenanceRequests) {
+      return maintenanceRequests;
+    }
+    return data?.maintenanceRequests;
+  }, [data, maintenanceRequests]);
 
   const metrics = [
     {
-      value: metricsData?.metrics.openRequests,
+      value: metricsRealtime?.openRequests,
       title: "Open Requests",
     },
     {
-      value: metricsData?.metrics.urgentRequests,
+      value: metricsRealtime?.urgentRequests,
       title: "Urgent Requests",
     },
     {
-      value: metricsData?.metrics.averageResolutionTime?.toFixed(2).toString(),
+      value: metricsRealtime?.averageResolutionTime?.toFixed(2).toString(),
       title: "Average time (days) to resolve",
     },
   ];
@@ -96,7 +116,7 @@ export default function Home() {
             ) : error ? (
               <div className="text-red-400">{error.message}</div>
             ) : (
-              data?.maintenanceRequests.map((maintenanceRequest, idx) => (
+              maintenanceRequestsRealtime?.map((maintenanceRequest, idx) => (
                 <Link
                   key={idx}
                   href={`/edit/${maintenanceRequest.id}`}

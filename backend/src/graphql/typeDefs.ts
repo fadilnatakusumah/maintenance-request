@@ -43,7 +43,16 @@ export const typeDefs = `#graphql
     urgentRequests: Int!
   }
 
+
+
+
   type Query {
+    maintenanceRequests: [MaintenanceRequest!]!
+    metrics: Metrics!
+  }
+
+  # New type to encapsulate the full data update payload
+  type DataUpdate {
     maintenanceRequests: [MaintenanceRequest!]!
     metrics: Metrics!
   }
@@ -59,6 +68,6 @@ export const typeDefs = `#graphql
   }
 
   type Subscription {
-    maintenanceRequestUpdated: MaintenanceRequest!
+    dataUpdated: DataUpdate!
   }
 `;
