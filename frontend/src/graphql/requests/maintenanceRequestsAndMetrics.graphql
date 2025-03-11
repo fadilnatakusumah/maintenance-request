@@ -1,5 +1,5 @@
-subscription OnDataUpdated {
-  dataUpdated {
+query GetMaintenanceRequestsAndMetrics {
+  updatedData {
     maintenanceRequests {
       id
       title
@@ -11,8 +11,8 @@ subscription OnDataUpdated {
       resolutionTime
     }
     metrics {
-      openRequests
       averageResolutionTime
+      openRequests
       urgentRequests
     }
   }

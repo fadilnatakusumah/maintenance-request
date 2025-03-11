@@ -4,6 +4,7 @@ import clsx from "clsx";
 import { formatDate, fromUnixTime } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 import CountUp from "react-countup";
 import { toast } from "react-toastify";
 
@@ -11,64 +12,61 @@ import Label from "@/components/Label";
 import Skeleton from "@/components/Skeleton";
 
 import {
+  DataUpdate,
+  OnDataUpdatedDocument,
   RequestStatus,
-  useGetMaintenanceRequestsQuery,
-  useGetMetricsQuery,
-  useOnDataUpdatedSubscription,
+  useGetMaintenanceRequestsAndMetricsQuery,
   useResolveMaintenanceRequestMutation,
 } from "@/__generated__/graphql";
 import { URGENT_TYPE_TEXT, URGENT_TYPE_TEXT_COLOR } from "@/consts/maintenance";
-import { useStore } from "@/store/Provider";
+import store from "@/store/store";
 import { URGENT_EMOJI } from "./(form)/consts";
-import { useMemo } from "react";
 
 export default function Home() {
-  const { data, loading, error } = useGetMaintenanceRequestsQuery({
-    fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
-  });
-  const { data: metricsData } = useGetMetricsQuery({
-    fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
-  });
-  const { store } = useStore();
-  const [resolveMaintenanceRequest] = useResolveMaintenanceRequestMutation({
-    awaitRefetchQueries: true,
-    refetchQueries: ["maintenanceRequests", "metrics"],
-  });
-  const { data: dataUpdated } = useOnDataUpdatedSubscription()!;
-  // const {} = dataUpdated.;
-  const maintenanceRequests = dataUpdated?.dataUpdated?.maintenanceRequests;
-  const metricsDataUpdated = dataUpdated?.dataUpdated?.metrics;
-
-  const metricsRealtime = useMemo(() => {
-    if (metricsDataUpdated) {
-      return metricsDataUpdated;
-    }
-    return metricsData?.metrics;
-  }, [metricsData, metricsDataUpdated]);
-
-  const maintenanceRequestsRealtime = useMemo(() => {
-    if (maintenanceRequests) {
-      return maintenanceRequests;
-    }
-    return data?.maintenanceRequests;
-  }, [data, maintenanceRequests]);
+  const { data, loading, error, subscribeToMore } =
+    useGetMaintenanceRequestsAndMetricsQuery({
+      fetchPolicy: "cache-and-network", // Always fetch fresh data and cached
+    });
+  const [resolveMaintenanceRequest] = useResolveMaintenanceRequestMutation();
 
   const metrics = [
     {
-      value: metricsRealtime?.openRequests,
+      value: data?.metrics?.openRequests,
       title: "Open Requests",
     },
     {
-      value: metricsRealtime?.urgentRequests,
+      value: data?.metrics?.urgentRequests,
       title: "Urgent Requests",
     },
     {
-      value: metricsRealtime?.averageResolutionTime?.toFixed(2).toString(),
+      value: data?.metrics?.averageResolutionTime?.toFixed(2).toString(),
       title: "Average time (days) to resolve",
     },
   ];
 
   const dayInSeconds = 86400;
+
+  useEffect(() => {
+    // Subscribe to data updates and merge them with the existing query data
+    const unsubscribe = subscribeToMore({
+      document: OnDataUpdatedDocument,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData.data) return prev;
+
+        // the typings from apollo client is not correct here
+        // they don't include the "dataUpdated" field in the Document
+        const updatedData = subscriptionData.data as unknown as {
+          dataUpdated: DataUpdate;
+        };
+        return {
+          ...prev,
+          maintenanceRequests: updatedData.dataUpdated.maintenanceRequests,
+          metrics: updatedData.dataUpdated.metrics,
+        };
+      },
+    });
+    return () => unsubscribe();
+  }, [subscribeToMore, data?.maintenanceRequests, data?.metrics]);
 
   async function resolveRequestHandler(id: string) {
     if (window.confirm("Are you sure you want to resolve this request?")) {
@@ -116,7 +114,7 @@ export default function Home() {
             ) : error ? (
               <div className="text-red-400">{error.message}</div>
             ) : (
-              maintenanceRequestsRealtime?.map((maintenanceRequest, idx) => (
+              data?.maintenanceRequests?.map((maintenanceRequest, idx) => (
                 <Link
                   key={idx}
                   href={`/edit/${maintenanceRequest.id}`}

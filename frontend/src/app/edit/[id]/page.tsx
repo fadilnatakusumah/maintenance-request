@@ -24,10 +24,7 @@ import { useStore } from "@/store/Provider";
 const EditPage = observer(() => {
   const { store } = useStore();
   const [updateMaintenanceRequest, { loading }] =
-    useUpdateMaintenanceRequestMutation({
-      awaitRefetchQueries: true,
-      refetchQueries: ["maintenanceRequests"],
-    });
+    useUpdateMaintenanceRequestMutation();
   const { push } = useRouter();
   const {
     register,

@@ -22,10 +22,7 @@ import { REQUEST_STATUS } from "@/consts/maintenance";
 
 export default function CreatePage() {
   const [createMaintenanceRequest, { loading }] =
-    useCreateMaintenanceRequestMutation({
-      awaitRefetchQueries: true,
-      refetchQueries: ["maintenanceRequests"],
-    });
+    useCreateMaintenanceRequestMutation();
   const { push } = useRouter();
   const {
     register,

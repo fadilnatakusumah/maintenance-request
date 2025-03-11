@@ -112,12 +112,17 @@ export type CreateMaintenanceRequestMutation = { __typename?: 'Mutation', create
 export type OnDataUpdatedSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OnDataUpdatedSubscription = { __typename?: 'Subscription', dataUpdated: { __typename?: 'DataUpdate', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, status: RequestStatus, urgency: RequestUrgency, createdAt: string, resolvedAt?: string | null, resolutionTime?: number | null }>, metrics: { __typename?: 'Metrics', averageResolutionTime?: number | null, openRequests: number, urgentRequests: number } } };
+export type OnDataUpdatedSubscription = { __typename?: 'Subscription', dataUpdated: { __typename?: 'DataUpdate', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, status: RequestStatus, urgency: RequestUrgency, createdAt: string, resolvedAt?: string | null, resolutionTime?: number | null }>, metrics: { __typename?: 'Metrics', openRequests: number, averageResolutionTime?: number | null, urgentRequests: number } } };
 
 export type GetMaintenanceRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetMaintenanceRequestsQuery = { __typename?: 'Query', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, createdAt: string, resolutionTime?: number | null, status: RequestStatus, urgency: RequestUrgency }> };
+
+export type GetMaintenanceRequestsAndMetricsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetMaintenanceRequestsAndMetricsQuery = { __typename?: 'Query', maintenanceRequests: Array<{ __typename?: 'MaintenanceRequest', id: string, title: string, description?: string | null, status: RequestStatus, urgency: RequestUrgency, createdAt: string, resolvedAt?: string | null, resolutionTime?: number | null }>, metrics: { __typename?: 'Metrics', averageResolutionTime?: number | null, openRequests: number, urgentRequests: number } };
 
 export type GetMetricsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -189,8 +194,8 @@ export const OnDataUpdatedDocument = gql`
       resolutionTime
     }
     metrics {
-      averageResolutionTime
       openRequests
+      averageResolutionTime
       urgentRequests
     }
   }
@@ -263,6 +268,57 @@ export type GetMaintenanceRequestsQueryHookResult = ReturnType<typeof useGetMain
 export type GetMaintenanceRequestsLazyQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsLazyQuery>;
 export type GetMaintenanceRequestsSuspenseQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsSuspenseQuery>;
 export type GetMaintenanceRequestsQueryResult = Apollo.QueryResult<GetMaintenanceRequestsQuery, GetMaintenanceRequestsQueryVariables>;
+export const GetMaintenanceRequestsAndMetricsDocument = gql`
+    query GetMaintenanceRequestsAndMetrics {
+  maintenanceRequests {
+    id
+    title
+    description
+    status
+    urgency
+    createdAt
+    resolvedAt
+    resolutionTime
+  }
+  metrics {
+    averageResolutionTime
+    openRequests
+    urgentRequests
+  }
+}
+    `;
+
+/**
+ * __useGetMaintenanceRequestsAndMetricsQuery__
+ *
+ * To run a query within a React component, call `useGetMaintenanceRequestsAndMetricsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetMaintenanceRequestsAndMetricsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetMaintenanceRequestsAndMetricsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetMaintenanceRequestsAndMetricsQuery(baseOptions?: Apollo.QueryHookOptions<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>(GetMaintenanceRequestsAndMetricsDocument, options);
+      }
+export function useGetMaintenanceRequestsAndMetricsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>(GetMaintenanceRequestsAndMetricsDocument, options);
+        }
+export function useGetMaintenanceRequestsAndMetricsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>(GetMaintenanceRequestsAndMetricsDocument, options);
+        }
+export type GetMaintenanceRequestsAndMetricsQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsAndMetricsQuery>;
+export type GetMaintenanceRequestsAndMetricsLazyQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsAndMetricsLazyQuery>;
+export type GetMaintenanceRequestsAndMetricsSuspenseQueryHookResult = ReturnType<typeof useGetMaintenanceRequestsAndMetricsSuspenseQuery>;
+export type GetMaintenanceRequestsAndMetricsQueryResult = Apollo.QueryResult<GetMaintenanceRequestsAndMetricsQuery, GetMaintenanceRequestsAndMetricsQueryVariables>;
 export const GetMetricsDocument = gql`
     query GetMetrics {
   metrics {
